@@ -1,6 +1,5 @@
 import time
 import matplotlib.pyplot as plt
-import numpy as np
 from functools import lru_cache
 
 # --- 1. Approche récursive naïve (lente pour n > 35) ---
@@ -81,14 +80,25 @@ def mesurer_performance(n):
         results[name] = end - start
     return results
 
-# --- 9. Visualisation graphique ---
-def visualiser_fibonacci(n):
-    fib = liste_fibonacci(n)
+# --- 9. Visualisation graphique (corrigée) ---
+def visualiser_fibonacci(n, max_display=50):
+    fib = liste_fibonacci(min(n, max_display))  # Limite à max_display termes
     plt.figure(figsize=(10, 6))
-    plt.plot(range(n+1), fib, marker='o', linestyle='-', color='b')
-    plt.title(f"Suite de Fibonacci (F0 à F{n})")
+    plt.plot(range(len(fib)), fib, marker='o', linestyle='-', color='b')
+    plt.title(f"Suite de Fibonacci (F0 à F{min(n, max_display)})")
     plt.xlabel("n")
     plt.ylabel("Fn")
+    plt.grid(True)
+    plt.show()
+
+# --- 10. Visualisation en échelle logarithmique (pour grands n) ---
+def visualiser_fibonacci_log(n):
+    fib = liste_fibonacci(n)
+    plt.figure(figsize=(10, 6))
+    plt.semilogy(range(n+1), fib, marker='o', linestyle='-', color='b')
+    plt.title(f"Suite de Fibonacci (échelle log, F0 à F{n})")
+    plt.xlabel("n")
+    plt.ylabel("log(Fn)")
     plt.grid(True)
     plt.show()
 
@@ -96,9 +106,19 @@ def visualiser_fibonacci(n):
 if __name__ == "__main__":
     n = int(input("Entrez un entier n pour calculer Fn : "))
     print(f"F{n} (itératif) = {fib_iteratif(n)}")
-    print(f"Liste des nombres de Fibonacci de F0 à F{n} : {liste_fibonacci(n)}")
+    print(f"Liste des nombres de Fibonacci de F0 à F{min(n, 20)} : {liste_fibonacci(min(n, 20))}")
     print(f"Vérification F25 = 75025 : {'OK' if verifier_f25() else 'KO'}")
     print("\nPerformance pour n=30 :")
     for method, temps in mesurer_performance(30).items():
         print(f"{method}: {temps:.6f} secondes")
-    visualiser_fibonacci(n)
+
+    # Choix de la visualisation
+    if n <= 50:
+        visualiser_fibonacci(n)
+    else:
+        print(f"\n{n} est grand : affichage limité à 50 termes (ou échelle log).")
+        choix = input("Voulez-vous afficher les 50 premiers termes (1) ou une échelle log (2) ? [1/2] ")
+        if choix == "1":
+            visualiser_fibonacci(n)
+        else:
+            visualiser_fibonacci_log(min(n, 100))  # Limite pour éviter des calculs trop longs
