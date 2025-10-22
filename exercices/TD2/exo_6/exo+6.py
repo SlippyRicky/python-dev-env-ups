@@ -1,124 +1,148 @@
-import time
-import matplotlib.pyplot as plt
-from functools import lru_cache
+import tkinter as tk
+from tkinter import ttk, simpledialog, font
+import random
+from PIL import Image, ImageTk
+import os
 
-# --- 1. Approche récursive naïve (lente pour n > 35) ---
-def fib_recursif(n):
-    if n <= 1:
-        return n
-    return fib_recursif(n-1) + fib_recursif(n-2)
+class FibonacciLapinsApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Simulation de Fibonacci - Lapins")
+        self.root.configure(bg="black")
+        self.root.geometry("800x600")
+        self.root.minsize(600, 500)
 
-# --- 2. Approche récursive optimisée avec mémoisation ---
-@lru_cache(maxsize=None)
-def fib_recursif_memo(n):
-    if n <= 1:
-        return n
-    return fib_recursif_memo(n-1) + fib_recursif_memo(n-2)
+        # Style moderne
+        self.style = ttk.Style()
+        self.style.configure("TButton", font=('Helvetica', 12), padding=10)
+        self.style.configure("Accent.TButton", background="green", foreground="white", bordercolor="black")
+        self.style.map("Accent.TButton", background=[("active", "#45a049")])
 
-# --- 3. Approche itérative (optimale pour la plupart des cas) ---
-def fib_iteratif(n):
-    a, b = 0, 1
-    for _ in range(n):
-        a, b = b, a + b
-    return a
+        # Frame principale
+        main_frame = ttk.Frame(self.root)
+        main_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
 
-# --- 4. Approche dynamique (avec liste) ---
-def fib_dynamique(n):
-    fib = [0, 1]
-    for i in range(2, n+1):
-        fib.append(fib[i-1] + fib[i-2])
-    return fib[n]
+        # Canevas avec bordure arrondie
+        self.canvas = tk.Canvas(main_frame, bg="#aadd88", highlightthickness=0, borderwidth=0)
+        self.canvas.pack(fill=tk.BOTH, expand=True)
 
-# --- 5. Approche matricielle (O(log n)) ---
-def fib_matriciel(n):
-    def multiply(a, b):
-        return [
-            [a[0][0]*b[0][0] + a[0][1]*b[1][0], a[0][0]*b[0][1] + a[0][1]*b[1][1]],
-            [a[1][0]*b[0][0] + a[1][1]*b[1][0], a[1][0]*b[0][1] + a[1][1]*b[1][1]],
-        ]
+        # Charger l'image du lapin
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        lapin_path = os.path.join(script_dir, "lapin.png")
+        self.lapin_image = Image.open(lapin_path)
+        self.lapin_image = self.lapin_image.resize((50, 50), Image.LANCZOS)
+        self.lapin_photo = ImageTk.PhotoImage(self.lapin_image)
 
-    def matrix_pow(mat, power):
-        result = [[1, 0], [0, 1]]  # Matrice identité
-        while power > 0:
-            if power % 2 == 1:
-                result = multiply(result, mat)
-            mat = multiply(mat, mat)
-            power //= 2
-        return result
+        # Variables
+        self.n = simpledialog.askinteger("Nombre de mois", "Combien de mois simuler ?", minvalue=1, maxvalue=24)
+        if not self.n:
+            self.n = 12
+        self.fib_sequence = self.generate_fibonacci(self.n)
+        self.lapins = []
+        self.current_month = 0
+        self.total_lapins = 0
 
-    if n == 0:
-        return 0
-    mat = [[1, 1], [1, 0]]
-    result = matrix_pow(mat, n-1)
-    return result[0][0]
+        # Compteur en haut (centré)
+        self.counter_var = tk.StringVar(value="Mois 0 : 0 lapins")
+        self.counter_label = ttk.Label(
+            self.canvas, textvariable=self.counter_var,
+            font=('Helvetica', 16, 'bold'), foreground="#E53935",
+            background="#aadd88"
+        )
+        self.counter_window = self.canvas.create_window(0, 0, window=self.counter_label, anchor=tk.N)
 
-# --- 6. Génération de la liste des nombres de Fibonacci ---
-def liste_fibonacci(n):
-    fib = [0, 1]
-    for i in range(2, n+1):
-        fib.append(fib[i-1] + fib[i-2])
-    return fib
+        # Lier les événements
+        self.canvas.bind("<Configure>", self.on_resize)
+        self.root.bind("<Return>", lambda e: self.reset())
 
-# --- 7. Vérification de F25 = 75025 ---
-def verifier_f25():
-    return fib_iteratif(25) == 75025
+        # Démarrer l'animation
+        self.animate()
 
-# --- 8. Mesure des performances ---
-def mesurer_performance(n):
-    methods = {
-        "Récursif": fib_recursif,
-        "Récursif + Mémo": fib_recursif_memo,
-        "Itératif": fib_iteratif,
-        "Dynamique": fib_dynamique,
-        "Matriciel": fib_matriciel,
-    }
-    results = {}
-    for name, func in methods.items():
-        start = time.time()
-        func(n)
-        end = time.time()
-        results[name] = end - start
-    return results
+    def generate_fibonacci(self, n):
+        fib = [0, 1]
+        for i in range(2, n+1):
+            fib.append(fib[i-1] + fib[i-2])
+        return fib
 
-# --- 9. Visualisation graphique (corrigée) ---
-def visualiser_fibonacci(n, max_display=50):
-    fib = liste_fibonacci(min(n, max_display))  # Limite à max_display termes
-    plt.figure(figsize=(10, 6))
-    plt.plot(range(len(fib)), fib, marker='o', linestyle='-', color='b')
-    plt.title(f"Suite de Fibonacci (F0 à F{min(n, max_display)})")
-    plt.xlabel("n")
-    plt.ylabel("Fn")
-    plt.grid(True)
-    plt.show()
+    def on_resize(self, event=None):
+        self.redraw()
 
-# --- 10. Visualisation en échelle logarithmique (pour grands n) ---
-def visualiser_fibonacci_log(n):
-    fib = liste_fibonacci(n)
-    plt.figure(figsize=(10, 6))
-    plt.semilogy(range(n+1), fib, marker='o', linestyle='-', color='b')
-    plt.title(f"Suite de Fibonacci (échelle log, F0 à F{n})")
-    plt.xlabel("n")
-    plt.ylabel("log(Fn)")
-    plt.grid(True)
-    plt.show()
+    def redraw(self):
+        # Mise à jour des positions
+        width = self.canvas.winfo_width()
+        height = self.canvas.winfo_height()
 
-# --- Exécution ---
-if __name__ == "__main__":
-    n = int(input("Entrez un entier n pour calculer Fn : "))
-    print(f"F{n} (itératif) = {fib_iteratif(n)}")
-    print(f"Liste des nombres de Fibonacci de F0 à F{min(n, 20)} : {liste_fibonacci(min(n, 20))}")
-    print(f"Vérification F25 = 75025 : {'OK' if verifier_f25() else 'KO'}")
-    print("\nPerformance pour n=30 :")
-    for method, temps in mesurer_performance(30).items():
-        print(f"{method}: {temps:.6f} secondes")
+        # Recentrer le compteur
+        self.canvas.coords(self.counter_window, width//2, 20)
 
-    # Choix de la visualisation
-    if n <= 50:
-        visualiser_fibonacci(n)
-    else:
-        print(f"\n{n} est grand : affichage limité à 50 termes (ou échelle log).")
-        choix = input("Voulez-vous afficher les 50 premiers termes (1) ou une échelle log (2) ? [1/2] ")
-        if choix == "1":
-            visualiser_fibonacci(n)
+        # Redessiner les lapins (avec marge de sécurité)
+        for rel_x, rel_y, img_id in self.lapins:
+            x = int(rel_x * (width - 60) + 30)  # Marge de 30px
+            y = int(rel_y * (height - 60) + 30)
+            self.canvas.coords(img_id, x, y)
+
+    def animate(self):
+        if self.current_month < len(self.fib_sequence):
+            # Calcul des nouveaux lapins
+            new_lapins = self.fib_sequence[self.current_month] - (self.fib_sequence[self.current_month-1] if self.current_month > 0 else 0)
+
+            # Ajouter les nouveaux lapins
+            width = self.canvas.winfo_width() - 60
+            height = self.canvas.winfo_height() - 60
+
+            for _ in range(new_lapins):
+                rel_x = random.uniform(0.1, 0.9)  # Éviter les bords
+                rel_y = random.uniform(0.1, 0.9)
+                x = int(rel_x * width + 30)
+                y = int(rel_y * height + 30)
+                img_id = self.canvas.create_image(x, y, image=self.lapin_photo, anchor=tk.NW)
+                self.lapins.append((rel_x, rel_y, img_id))
+
+            # Mettre à jour le compteur
+            self.total_lapins = self.fib_sequence[self.current_month]
+            self.counter_var.set(f"Mois {self.current_month} : {self.total_lapins} lapins")
+
+            self.current_month += 1
+            self.root.after(200, self.animate)
         else:
-            visualiser_fibonacci_log(min(n, 100))  # Limite pour éviter des calculs trop longs
+            self.show_completion()
+
+    def show_completion(self):
+        width = self.canvas.winfo_width()
+        height = self.canvas.winfo_height()
+
+        # Message de fin
+        self.canvas.create_text(
+            width//2, height//2,
+            text="Simulation terminée !",
+            font=('Helvetica', 18, 'bold'), fill="#E53935"
+        )
+
+        # Bouton Recommencer stylisé
+        btn_frame = ttk.Frame(self.canvas, style="Accent.TButton")
+        ttk.Button(
+            btn_frame, text="Recommencer", command=self.reset,
+            style="Accent.TButton"
+        ).pack(padx=20, pady=10)
+        self.btn_window = self.canvas.create_window(width//2, height*0.8, window=btn_frame, anchor=tk.CENTER)
+
+    def reset(self):
+        # Effacer tout
+        for _, _, img_id in self.lapins:
+            self.canvas.delete(img_id)
+        self.lapins = []
+        self.current_month = 0
+        self.total_lapins = 0
+        self.counter_var.set("Mois 0 : 0 lapins")
+
+        # Supprimer le message de fin et le bouton
+        self.canvas.delete("all")
+        self.canvas.create_window(0, 0, window=self.counter_label, anchor=tk.N)
+
+        # Relancer
+        self.animate()
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = FibonacciLapinsApp(root)
+    root.mainloop()
