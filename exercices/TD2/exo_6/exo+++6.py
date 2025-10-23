@@ -14,7 +14,7 @@ class FibonacciLapinsApp:
         self.root.title("Fibonacci Rabbit Simulation")
         self.root.configure(bg="black")
         self.root.geometry("900x700")
-        self.root.minsize(window_width, window_height)
+        self.root.minsize(self.window_width, self.window_height)
         self.root.redraw(self)
 
         # Style personnalisé avancé
