@@ -224,7 +224,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🎓 Academic Context
 
-Created for **Université Paul Sabatier (UPS) M1 SGM** programming coursework. Designed to provide a consistent development environment across different computing environments encountered in academic settings.
+Created for **Université Paris Saclay (UPS) M1 SGM** programming coursework. Designed to provide a consistent development environment across different computing environments encountered in academic settings.
 
 ---
 
