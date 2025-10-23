@@ -5,31 +5,24 @@ from PIL import Image, ImageTk
 import os
 
 class FibonacciLapinsApp:
-
-    window_width = 800
-    window_height = 600
-
     def __init__(self, root):
         self.root = root
         self.root.title("Fibonacci Rabbit Simulation")
         self.root.configure(bg="black")
         self.root.geometry("900x700")
-        self.root.minsize(self.window_width, self.window_height)
-        self.root.redraw(self)
+        self.root.minsize(800, 600)
 
         # Style personnalisé avancé
         self.style = ttk.Style()
         self.style.theme_use('clam')
-
-        # Configuration des styles
         self.configure_styles()
 
-        # Frame principale avec bordure arrondie
+        # Frame principale
         self.main_frame = ttk.Frame(self.root)
         self.main_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
 
-        # Canevas avec dégradé de fond
-        self.canvas = tk.Canvas(self.main_frame, bg="", highlightthickness=0, borderwidth=0)
+        # Canevas avec fond vert
+        self.canvas = tk.Canvas(self.main_frame, bg="#aadd88", highlightthickness=0, borderwidth=0)
         self.canvas.pack(fill=tk.BOTH, expand=True)
 
         # Charger les images
@@ -46,16 +39,18 @@ class FibonacciLapinsApp:
 
     def configure_styles(self):
         """Configuration des styles personnalisés"""
-        # Style pour le bouton principal
+        # Style pour le bouton principal (texte rouge)
         self.style.configure('Accent.TButton',
-                            font=('Helvetica', 16, 'bold'),
-                            borderwidth=2,
-                            focusthickness=3,
-                            focuscolor='#4CAF50',
-                            padding=12,
-                            relief='raised')
+                           foreground='#E53935',  # Texte rouge
+                           background='#4CAF50',
+                           font=('Helvetica', 16, 'bold'),
+                           borderwidth=2,
+                           focusthickness=3,
+                           focuscolor='#4CAF50',
+                           padding=12,
+                           relief='raised')
         self.style.map('Accent.TButton',
-                      foreground=[('active', '#E53935')],
+                      foreground=[('active', '#E53935')],  # Rouge au survol
                       background=[('active', '#3e8e41'), ('pressed', '#388E3C')],
                       relief=[('pressed', 'sunken'), ('!pressed', 'raised')])
 
@@ -77,12 +72,10 @@ class FibonacciLapinsApp:
         """Chargement et traitement des images"""
         script_dir = os.path.dirname(os.path.abspath(__file__))
         lapin_path = os.path.join(script_dir, "lapin.png")
-
         try:
             self.lapin_image = Image.open(lapin_path)
             self.lapin_image = self.lapin_image.resize((50, 50), Image.LANCZOS)
             self.lapin_photo = ImageTk.PhotoImage(self.lapin_image)
-
             # Image d'ombre pour effet 3D
             shadow = Image.new('RGBA', (50, 50), (0, 0, 0, 128))
             self.shadow_photo = ImageTk.PhotoImage(shadow)
@@ -99,7 +92,6 @@ class FibonacciLapinsApp:
                                       minvalue=1, maxvalue=24, initialvalue=12)
         if not self.n:
             self.n = 12
-
         self.fib_sequence = self.generate_fibonacci(self.n)
         self.lapins = []
         self.current_month = 0
@@ -107,6 +99,7 @@ class FibonacciLapinsApp:
         self.animation_id = None
         self.btn = None
         self.end_message = None
+        self.counter_window = None
 
     def setup_interface(self):
         """Configuration de l'interface utilisateur"""
@@ -116,15 +109,11 @@ class FibonacciLapinsApp:
             self.canvas, textvariable=self.counter_var,
             style='Counter.TLabel'
         )
-
         padding_top = 20
-
-        # Create the window
         self.counter_window = self.canvas.create_window(
-            window_width / 2,
-            padding_top,
+            0, 0,  # Position initiale, sera recalculée
             window=self.counter_label,
-            anchor = tk.N
+            anchor=tk.N
         )
 
         # Lier les événements
@@ -155,7 +144,8 @@ class FibonacciLapinsApp:
         height = self.canvas.winfo_height()
 
         # Recentrer le compteur
-        self.canvas.coords(self.counter_window, width//2, 20)
+        if self.counter_window:
+            self.canvas.coords(self.counter_window, width//2, 20)
 
         # Redessiner les lapins avec ombres
         for rel_x, rel_y, img_id, shadow_id in self.lapins:
@@ -174,7 +164,6 @@ class FibonacciLapinsApp:
         """Animation principale"""
         if self.current_month < len(self.fib_sequence):
             new_lapins = self.fib_sequence[self.current_month] - (self.fib_sequence[self.current_month-1] if self.current_month > 0 else 0)
-
             width = self.canvas.winfo_width()
             height = self.canvas.winfo_height()
 
@@ -189,12 +178,10 @@ class FibonacciLapinsApp:
                 shadow_id = self.canvas.create_image(x+2, y+2, image=self.shadow_photo, anchor=tk.NW)
                 # Lapin
                 img_id = self.canvas.create_image(x, y, image=self.lapin_photo, anchor=tk.NW)
-
                 self.lapins.append((rel_x, rel_y, img_id, shadow_id))
 
             self.total_lapins = self.fib_sequence[self.current_month]
             self.counter_var.set(f"Mois {self.current_month} : {self.total_lapins} lapins")
-
             self.current_month += 1
             self.animation_id = self.root.after(800, self.animate)
         else:
