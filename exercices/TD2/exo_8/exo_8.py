@@ -36,7 +36,7 @@ def constante_madelung(L):
                     M -= 1 / distance
     return M
 
-# Choisir L le plus grand possible pour une exécution rapide (< 1 min)
+L = input(int("Choisir L le plus grand possible pour une exécution rapide (< 1 min)"))
 L = 50  # Tu peux ajuster cette valeur selon la puissance de ton ordinateur
 M = constante_madelung(L)
 print(f"Constante de Madelung pour L={L} : {M:.6f}")
