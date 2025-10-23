@@ -40,10 +40,6 @@ for channel in range(3):
 # Clip and convert back to uint8
 blurred_image = np.clip(blurred_image, 0, 255).astype(np.uint8)
 
-# Define the directory for images
-images_dir = 'images'
-os.makedirs(images_dir, exist_ok=True)
-
 # Find the highest existing version number
 version = 1
 while True:
