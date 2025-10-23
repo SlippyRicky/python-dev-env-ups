@@ -5,12 +5,17 @@ from PIL import Image, ImageTk
 import os
 
 class FibonacciLapinsApp:
+
+    window_width = 800
+    window_height = 600
+
     def __init__(self, root):
         self.root = root
         self.root.title("Fibonacci Rabbit Simulation")
         self.root.configure(bg="black")
         self.root.geometry("900x700")
-        self.root.minsize(600, 500)
+        self.root.minsize(window_width, window_height)
+        self.root.redraw(self)
 
         # Style personnalisé avancé
         self.style = ttk.Style()
@@ -43,16 +48,14 @@ class FibonacciLapinsApp:
         """Configuration des styles personnalisés"""
         # Style pour le bouton principal
         self.style.configure('Accent.TButton',
-                           foreground='#ffffff',
-                           background='#4CAF50',
-                           font=('Helvetica', 14, 'bold'),
-                           borderwidth=2,
-                           focusthickness=3,
-                           focuscolor='#4CAF50',
-                           padding=12,
-                           relief='raised')
+                            font=('Helvetica', 16, 'bold'),
+                            borderwidth=2,
+                            focusthickness=3,
+                            focuscolor='#4CAF50',
+                            padding=12,
+                            relief='raised')
         self.style.map('Accent.TButton',
-                      foreground=[('active', '#ffffff')],
+                      foreground=[('active', '#E53935')],
                       background=[('active', '#3e8e41'), ('pressed', '#388E3C')],
                       relief=[('pressed', 'sunken'), ('!pressed', 'raised')])
 
@@ -113,7 +116,16 @@ class FibonacciLapinsApp:
             self.canvas, textvariable=self.counter_var,
             style='Counter.TLabel'
         )
-        self.counter_window = self.canvas.create_window(0, 0, window=self.counter_label, anchor=tk.N)
+
+        padding_top = 20
+
+        # Create the window
+        self.counter_window = self.canvas.create_window(
+            window_width / 2,
+            padding_top,
+            window=self.counter_label,
+            anchor = tk.N
+        )
 
         # Lier les événements
         self.canvas.bind("<Configure>", self.on_resize)
