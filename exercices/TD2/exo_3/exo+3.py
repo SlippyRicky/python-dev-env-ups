@@ -1,4 +1,4 @@
-import pyfiglet
+# QUESTION: import pyfiglet
 
 def conv_homme_chien(annees_humaines):
     if annees_humaines <= 18:
