@@ -30,6 +30,7 @@ plt.ylabel("Tension (V)")
 plt.legend()
 plt.tight_layout()
 
+
 # Calcul de la constante de Planck h
 e = 1.602e-19  # Charge de l'électron (C)
 h = m * e  # Puisque V = (h/e)ν - ϕ/e, donc m = h/e

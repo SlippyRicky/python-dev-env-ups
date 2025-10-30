@@ -1,19 +1,15 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-# 1. Fonction f(x) = 1 / (1 - x)
 def f1(x):
     return 1 / (1 - x)
 
-# 2. Fonction f(x) = exp(sqrt(1 - a * x^2)) si |x| < 1/a, 0 sinon
 def f2(x, a=1):
     return np.where(np.abs(x) < 1/a, np.exp(np.sqrt(1 - a * x**2)), 0)
 
-# 3. Conversion radians → degrés
 def rad_to_deg(radians):
     return radians * (180 / np.pi)
 
-# Tracé de la fonction 1
 x1 = np.linspace(-4.9, 4.9, 500)  # Évite x=1 pour éviter la division par zéro
 y1 = f1(x1)
 
