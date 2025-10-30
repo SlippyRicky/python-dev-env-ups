@@ -157,13 +157,13 @@ shape_var = tk.StringVar()
 shape_dropdown = ttk.OptionMenu(sidebar, shape_var, "cube", "cube", "sphere", "cone", "pyramide", command=lambda _: [update_plot(), update_input_fields()])
 shape_dropdown.pack(pady=5)
 
-ttk.Label(sidebar, text="Dimension 1:").pack(pady=5)
+ttk.Label(sidebar, text="Largeur:").pack(pady=5)
 dim1_entry = ttk.Entry(sidebar)
 dim1_entry.pack(pady=5)
 dim1_entry.insert(0, "1.0")  # Default value
 dim1_entry.bind("<Return>", update_plot)
 
-dim2_label = ttk.Label(sidebar, text="Dimension 2:")
+dim2_label = ttk.Label(sidebar, text="Hauteur:")
 dim2_entry = ttk.Entry(sidebar)
 dim2_entry.insert(0, "1.0")  # Default value
 dim2_entry.bind("<Return>", update_plot)
