@@ -1,3 +1,5 @@
+#!/bin/bash
+
 for dir in exo_{1..8}; do
     if [ -d "$dir" ]; then
         # Navigate into the directory
