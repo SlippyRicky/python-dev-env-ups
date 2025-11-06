@@ -1,16 +1,12 @@
 #!/bin/bash
 
-for dir in exo_{1..3}; do
-  x=0
-    if [ -d "$dir" ]; then
-        x=+1
-        # Navigate into the directory
-        cd "$dir"
-        # Create a Python file with the same name as the directory
-        touch "${dir}_$x.py"
-        touch "${dir}+$x.py"
-        touch "${dir}++$x.py"
-        # Navigate back to the original directory
-        cd ..
-    fi
+# Create exo_1, exo_2, exo_3 directories and files
+for i in {1..3}; do
+    dir="exo_$i"
+    mkdir -p "$dir"
+    cd "$dir" || exit
+    touch "${dir}.py"
+    touch "${dir}+$i.py"
+    touch "${dir}++$i.py"
+    cd ..
 done
