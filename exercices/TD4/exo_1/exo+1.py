@@ -26,7 +26,6 @@ def demontrer_commandes_numpy():
     print("4. np.eye(3) : Matrice identité 3x3")
     print(matrice_identite)
     print("Forme :", matrice_identite.shape, "\n")
-
     # 5. np.eye(3, 2) : Matrice diagonale 3x2
     matrice_diagonale = np.eye(3, 2)
     print("5. np.eye(3, 2) : Matrice diagonale 3x2")
