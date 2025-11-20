@@ -1,7 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+from matplotlib.animation import FuncAnimation
 
+# Configuration des paramètres graphiques
 plt.rcParams.update({
     'figure.facecolor': (0.102, 0.102, 0.102),
     'axes.facecolor': (0.102, 0.102, 0.102),
@@ -16,125 +18,97 @@ plt.rcParams.update({
     'axes.labelsize': 12,
     'xtick.labelsize': 10,
     'ytick.labelsize': 10,
-    'figure.figsize': (12, 9),
-    'figure.dpi': 300
+    'figure.figsize': (18, 6),
+    'figure.dpi': 100
 })
 
 # Créer un dossier pour sauvegarder les figures
 if not os.path.exists('Graphiques'):
     os.makedirs('Graphiques')
 
-# 1. Importation des bibliothèques nécessaires
-# Déjà fait avec numpy et matplotlib
-
-# 2. Définition des constantes et paramètres
+# Constantes et paramètres
 g = 9.81  # Accélération due à la gravité (m/s²)
-dt = 0.0001  # Pas de temps initial (s)
 r = 0.03  # Rayon de la balle de tennis (m)
-y0 = 1.5  # Hauteur initiale (m)
 vy0 = 0.0  # Vitesse initiale (m/s)
 
-# Initialisation des variables
-y = y0  # Position initiale
-vy = vy0  # Vitesse initiale
-t = 0.0  # Temps initial
-i = 0  # Compteur d'itérations
-
-# Initialisation des listes pour stocker les valeurs de position, vitesse et temps
-y_values = [y0]
-vy_values = [vy0]
-time_values = [t]
-
-# 3. Application de la méthode d'Euler
-while y > r:
-    # Calcul de la nouvelle vitesse
-    vy = vy - g * dt
-    # Calcul de la nouvelle position
-    y = y + vy * dt
-    # Incrémentation du temps et du compteur
-    t += dt
-    i += 1
-    # Stockage des valeurs
-    y_values.append(y)
-    vy_values.append(vy)
-    time_values.append(t)
-
-# 4. Affichage graphique
-plt.figure(figsize=(10, 6))
-plt.plot(time_values, y_values, label='Méthode d\'Euler')
-plt.title('Chute libre d\'une balle de tennis')
-plt.xlabel('Temps (s)')
-plt.ylabel('Position (m)')
-plt.grid(True)
-
-# 5. Calcul et affichage de la solution analytique
-t_analyt = np.linspace(0, t, 1000)
-y_analyt = 0.5 * g * t_analyt**2 + vy0 * t_analyt + y0
-plt.plot(t_analyt, y_analyt, 'r-', lw=2.5, label='Solution analytique')
-
-# 6. Ajout des légendes et affichage
-plt.legend()
-
-# Sauvegarder la première figure
-plt.savefig('Graphiques/chute_libre_comparaison__dark.png')
-plt.show()
-
-# 7. Test avec différents pas de temps
-dt_values = [0.01, 0.05, 0.1, 0.2]  # 10 ms, 50 ms, 100 ms, 200 ms
-plt.figure(figsize=(12, 8))
-
-for dt in dt_values:
+def simulate_and_animate_fall(y0, dt):
+    # Simulation de la chute
     y = y0
     vy = vy0
     t = 0.0
-    y_euler = [y0]
-    t_euler = [t]
+    y_values = [y0]
+    vy_values = [vy0]
+    time_values = [t]
 
     while y > r:
         vy = vy - g * dt
         y = y + vy * dt
         t += dt
-        y_euler.append(y)
-        t_euler.append(t)
+        y_values.append(y)
+        vy_values.append(vy)
+        time_values.append(t)
 
-    plt.plot(t_euler, y_euler, '--', label=f'Pas de temps = {dt:.4f} s')
+    # Solution analytique pour comparaison
+    t_analyt = np.linspace(0, time_values[-1], 1000)
+    y_analyt = y0 - 0.5 * g * t_analyt**2
 
-plt.plot(t_analyt, y_analyt, 'k-', lw=2.5, label='Solution analytique')
-plt.title('Comparaison des solutions avec différents pas de temps')
-plt.xlabel('Temps (s)')
-plt.ylabel('Position (m)')
-plt.grid(True)
-plt.legend()
+    # Configuration des graphiques
+    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(18, 6), constrained_layout=True)
+    fig.suptitle(f'Simulation de Chute (Hauteur initiale: {y0:.2f} m, dt: {dt:.4f} s)', color=plt.rcParams['text.color'])
 
-# Sauvegarder la deuxième figure
-plt.savefig('Graphiques/comparaison_pas_de_temps__dark.png')
-plt.show()
+    # Graphique 1 : Position en fonction du temps (Euler vs Analytique)
+    ax1.plot(time_values, y_values, label='Méthode d\'Euler', color='cyan')
+    ax1.plot(t_analyt, y_analyt, 'r-', lw=2.5, label='Solution Analytique')
+    ax1.set_title('Position en fonction du Temps')
+    ax1.set_xlabel('Temps (s)')
+    ax1.set_ylabel('Position (m)')
+    ax1.grid(True)
+    ax1.legend()
 
-# 8. Représentation graphique de la vitesse et de la position en fonction du temps
-plt.figure(figsize=(12, 6))
-plt.subplot(1, 2, 1)
-plt.plot(time_values, y_values, 'b-', label='Position')
-plt.xlabel('Temps (s)')
-plt.ylabel('Position (m)')
-plt.title('Position en fonction du temps')
-plt.grid(True)
-plt.legend()
+    # Graphique 2 : Vitesse en fonction du temps
+    ax2.plot(time_values, vy_values, 'g-', label='Vitesse')
+    ax2.set_title('Vitesse en fonction du Temps')
+    ax2.set_xlabel('Temps (s)')
+    ax2.set_ylabel('Vitesse (m/s)')
+    ax2.grid(True)
+    ax2.legend()
 
-plt.subplot(1, 2, 2)
-plt.plot(time_values, vy_values, 'g-', label='Vitesse')
-plt.xlabel('Temps (s)')
-plt.ylabel('Vitesse (m/s)')
-plt.title('Vitesse en fonction du temps')
-plt.grid(True)
-plt.legend()
+    # Graphique 3 : Animation en temps réel de la chute
+    ax3.set_title('Animation de la Chute')
+    ax3.set_xlabel('Temps (s)')
+    ax3.set_ylabel('Position (m)')
+    ax3.set_xlim(0, time_values[-1])
+    ax3.set_ylim(0, y0 * 1.1)
+    ax3.grid(True)
 
-plt.tight_layout()
+    line, = ax3.plot([], [], 'o', color='gold', markersize=10, label='Position de la Balle')
+    time_text = ax3.text(0.05, 0.95, '', transform=ax3.transAxes, color=plt.rcParams['text.color'])
+    position_text = ax3.text(0.05, 0.90, '', transform=ax3.transAxes, color=plt.rcParams['text.color'])
+    ax3.legend()
 
-# Sauvegarder la troisième figure
-plt.savefig('Graphiques/position_vitesse.png')
-plt.show()
+    def init():
+        line.set_data([], [])
+        time_text.set_text('')
+        position_text.set_text('')
+        return line, time_text, position_text
 
-# Affichage du temps de chute et du nombre d'itérations
-print(f"Temps de chute : {round(t, 3)} s")
-print(f"Nombre d'itérations : {i}")
-print(f"Pas de temps : {dt} s")
+    def update(frame):
+        current_time = time_values[frame]
+        current_position = y_values[frame]
+        line.set_data([current_time], [current_position])
+        time_text.set_text(f'Temps: {current_time:.2f} s')
+        position_text.set_text(f'Position: {current_position:.2f} m')
+        return line, time_text, position_text
+
+    ani = FuncAnimation(fig, update, frames=len(time_values), init_func=init, blit=True, interval=dt * 1000)
+    plt.show()
+
+    # Sauvegarder l'animation (optionnel)
+    # ani.save('Graphiques/ball_fall_animation.gif', writer='pillow', fps=30)
+
+# Demander à l'utilisateur les paramètres
+y0 = float(input("Entrez la hauteur initiale (en mètres) : "))
+dt = float(input("Entrez le pas de temps (en secondes) : "))
+
+# Lancer la simulation
+simulate_and_animate_fall(y0, dt)
