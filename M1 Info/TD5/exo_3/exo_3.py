@@ -9,18 +9,10 @@ kB = 1.30e-23  # m^2 kg s^-2 K^-1 (constante de Boltzmann)
 theta_D = 428  # K (température de Debye)
 T = 300  # K (température du système)
 
-# 1. Définir la fonction f(x)
 def f(x):
-    """
-    Définition de la fonction f(x) = x^4 * e^x / (e^x - 1)^2
-    """
     return (x**4 * np.exp(x)) / (np.exp(x) - 1)**2
 
-# 2. Définir la fonction cv(T, N)
 def cv(T, N, theta_D, V, rho, kB):
-    """
-    Calcule la capacité thermique CV(T) en utilisant la somme de Riemann
-    """
     a = 0
     b = theta_D / T
     delta_x = (b - a) / N
@@ -33,11 +25,8 @@ def cv(T, N, theta_D, V, rho, kB):
     CV = 9 * V * rho * kB * (T / theta_D)**3 * integral
     return CV
 
-# 3. Trouver le nombre de points N nécessaires pour une précision donnée
-def find_N_for_precision(T, theta_D, V, rho, kB, precision_target):
-    """
-    Trouve le nombre de points N nécessaires pour obtenir une précision donnée
-    """
+def find_N(T, theta_D, V, rho, kB, precision_target):
+
     N = 1
     precision = 1.0  # Initialiser à une valeur supérieure à la précision cible
 
@@ -54,7 +43,7 @@ precision_targets = [1e-4, 1e-6, 1e-8]
 N_values = []
 
 for precision in precision_targets:
-    N = find_N_for_precision(T, theta_D, V, rho, kB, precision)
+    N = find_N(T, theta_D, V, rho, kB, precision)
     N_values.append(N)
     print(f"Nombre de points nécessaire pour une précision de {precision}: {N}")
 
